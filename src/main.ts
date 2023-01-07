@@ -9,13 +9,13 @@ function createWindow() {
     // width: 285,
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, "./preload.js"),
+      preload: path.join(__dirname, "./electron/preload.js"),
       nodeIntegration: true,
       contextIsolation: false,
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, "../index.html"));
+  mainWindow.loadFile(path.join(__dirname, "../src/html/index.html"));
 
   mainWindow.webContents.openDevTools();
 }
@@ -34,10 +34,8 @@ app.on("window-all-closed", () => {
 });
 
 let questionOneWindow: BrowserWindow = null;
-console.log(questionOneWindow);
 
 ipcMain.on("open-window-question-1", () => {
-  console.log("ipc");
   if (questionOneWindow == null) {
     questionOneWindow = new BrowserWindow({
       height: 400,
@@ -52,5 +50,7 @@ ipcMain.on("open-window-question-1", () => {
       questionOneWindow = null;
     });
   }
-  questionOneWindow.loadFile(path.join(__dirname, "../question-one.html"));
+  questionOneWindow.loadFile(
+    path.join(__dirname, "../src/html/question-one.html")
+  );
 });
