@@ -11,7 +11,7 @@ type inquirerResponse = {
   response: string;
 };
 
-const pratosIniciais: dish = {
+const pratos: dish = {
   value: "Massa",
   rightDish: {
     value: "Lasanha",
@@ -21,76 +21,21 @@ const pratosIniciais: dish = {
   },
 };
 
-const spinner = createSpinner();
+let count = 0;
 
-async function negativeAnswer(prato: dish): Promise<dish | null> {
-  const answer1: inquirerResponse = await inquirer.prompt({
-    name: "response",
-    type: "input",
-    message: "Qual prato voce pensou?",
-  });
-  const answer2: inquirerResponse = await inquirer.prompt({
-    name: "response",
-    type: "input",
-    message: `${answer1.response} eh ________, mas ${prato.value} nao?`,
-  });
-
-  if (!answer1 || !answer2) return null;
-
-  const novoPrato = {
-    value: answer2.response,
-    leftDish: {
-      value: prato.value,
-    },
-    rightDish: {
-      value: answer1.response,
-    },
+const dishFactory = (
+  value: string,
+  rightDish?: dish,
+  leftDish?: dish
+): dish => {
+  return {
+    value,
+    rightDish,
+    leftDish,
   };
+};
 
-  return novoPrato;
-}
-
-async function question(pratos: dish): Promise<void> {
-  console.log("pratos: \n", pratos);
-
-  const answer: inquirerResponse = await inquirer.prompt({
-    name: "response",
-    type: "list",
-    message: `O prato que voce escolheu eh ${pratos.value}?`,
-    choices: ["SIM", "NAO"],
-  });
-  const res = answer.response;
-
-  console.log("res: \n", res);
-
-  if (res === "SIM") {
-    if (pratos.rightDish) {
-      await question(pratos.rightDish);
-    } else {
-      spinner.success({
-        text: "Acertei de novo! :)",
-      });
-
-      inicio();
-    }
-  }
-  if (res === "NAO") {
-    if (pratos.leftDish) {
-      await question(pratos.leftDish);
-    } else {
-      const novoPrato = await negativeAnswer(pratos);
-      console.log("novoPrato: \n", JSON.stringify(novoPrato));
-
-      pratos.value = novoPrato.value;
-      pratos.leftDish = novoPrato.leftDish;
-      pratos.rightDish = novoPrato.rightDish;
-
-      inicio();
-    }
-  }
-}
-
-async function inicio() {
+async function startGame() {
   await inquirer.prompt({
     name: "inicio",
     type: "input",
@@ -100,7 +45,71 @@ async function inicio() {
     },
   });
 
-  question(pratosIniciais);
+  startQuiz(pratos);
 }
 
-inicio();
+async function createNewDish(dish: dish): Promise<dish> {
+  const answerOne: inquirerResponse = await inquirer.prompt({
+    name: "response",
+    type: "input",
+    message: "Qual prato você pensou?",
+  });
+  const answerOneResponse =
+    answerOne.response === "" ? "PRATO NAO ADICIONADO" : answerOne.response;
+
+  const answerTwo: inquirerResponse = await inquirer.prompt({
+    name: "response",
+    type: "input",
+    message: `${answerOneResponse} é ________, mas ${dish.value} não?`,
+  });
+  const answerTwoResponse =
+    answerTwo.response === "" ? "PRATO NAO ADICIONADO" : answerTwo.response;
+
+  return dishFactory(
+    answerTwoResponse,
+    {
+      value: answerOneResponse,
+    },
+    { value: dish.value }
+  );
+}
+
+async function startQuiz(dishes: dish): Promise<void> {
+  const spinner = createSpinner();
+
+  const answer: inquirerResponse = await inquirer.prompt({
+    name: "response",
+    type: "list",
+    message: `O prato que você escolheu é ${dishes.value}?`,
+    choices: ["SIM", "NAO"],
+  });
+  const res = answer.response;
+
+  if (res === "SIM") {
+    if (dishes.rightDish) {
+      await startQuiz(dishes.rightDish);
+    } else {
+      spinner.success({
+        text: count < 1 ? "Acertei!" : "Acertei de novo! 😎",
+      });
+
+      count += 1;
+      startGame();
+    }
+  }
+  if (res === "NAO") {
+    if (dishes.leftDish) {
+      await startQuiz(dishes.leftDish);
+    } else {
+      const newDish = await createNewDish(dishes);
+
+      dishes.value = newDish.value;
+      dishes.leftDish = newDish.leftDish;
+      dishes.rightDish = newDish.rightDish;
+
+      startGame();
+    }
+  }
+}
+
+startGame();
