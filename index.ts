@@ -1,35 +1,29 @@
 import { createSpinner } from "nanospinner";
 import inquirer from "inquirer";
 
-type tipoDoPrato = {
-  nome: string;
-  pratos: tipoDoPrato[];
+type dish = {
+  value: string;
+  rightDish?: dish;
+  leftDish?: dish;
 };
 
 type inquirerResponse = {
   response: string;
 };
 
-const pratosIniciais: tipoDoPrato[] = [
-  {
-    nome: "Massa",
-    pratos: [
-      {
-        nome: "Lasanha",
-        pratos: [],
-      },
-    ],
+const pratosIniciais: dish = {
+  value: "Massa",
+  rightDish: {
+    value: "Lasanha",
   },
-  {
-    nome: "Bolo de Chocolate",
-    pratos: [],
+  leftDish: {
+    value: "Bolo de chocolate",
   },
-];
+};
 
 const spinner = createSpinner();
-let count = 0;
 
-async function negativeAnswer(prato: string): Promise<tipoDoPrato | null> {
+async function negativeAnswer(prato: dish): Promise<dish | null> {
   const answer1: inquirerResponse = await inquirer.prompt({
     name: "response",
     type: "input",
@@ -38,62 +32,65 @@ async function negativeAnswer(prato: string): Promise<tipoDoPrato | null> {
   const answer2: inquirerResponse = await inquirer.prompt({
     name: "response",
     type: "input",
-    message: `${answer1.response} eh ________, mas ${prato} nao?`,
+    message: `${answer1.response} eh ________, mas ${prato.value} nao?`,
   });
 
   if (!answer1 || !answer2) return null;
-  return {
-    nome: answer2.response,
-    pratos: [
-      {
-        nome: answer1.response,
-        pratos: [],
-      },
-    ],
+
+  const novoPrato = {
+    value: answer2.response,
+    leftDish: {
+      value: prato.value,
+    },
+    rightDish: {
+      value: answer1.response,
+    },
   };
+
+  return novoPrato;
 }
 
-async function question(pratos: tipoDoPrato): Promise<tipoDoPrato | void> {
-  console.log(JSON.stringify(pratos));
+async function question(pratos: dish): Promise<void> {
+  console.log("pratos: \n", pratos);
 
   const answer: inquirerResponse = await inquirer.prompt({
     name: "response",
     type: "list",
-    message: `O prato que voce escolheu eh ${pratos.nome}`,
+    message: `O prato que voce escolheu eh ${pratos.value}?`,
     choices: ["SIM", "NAO"],
   });
+  const res = answer.response;
 
-  const flag = answer.response === "SIM" ? true : false;
+  console.log("res: \n", res);
 
-  console.log("count: ", count);
-
-  if (flag) {
-    if (pratos.pratos.length) {
-      let novoPrato: tipoDoPrato | null;
-
-      for (const prato of pratos.pratos) {
-        const pratoAtual = await question(prato);
-
-        if (pratoAtual) novoPrato = pratoAtual;
-        if (novoPrato) pratos.pratos.shift();
-      }
+  if (res === "SIM") {
+    if (pratos.rightDish) {
+      await question(pratos.rightDish);
     } else {
-      spinner.success({ text: count > 0 ? "Acertei de novo! :)" : "Acertei!" });
-      count += 1;
-      await incio();
+      spinner.success({
+        text: "Acertei de novo! :)",
+      });
+
+      inicio();
     }
-  } else {
-    const novoPrato = await negativeAnswer(pratos.nome);
-    if (novoPrato) {
-      pratos.pratos.push(novoPrato);
+  }
+  if (res === "NAO") {
+    if (pratos.leftDish) {
+      await question(pratos.leftDish);
+    } else {
+      const novoPrato = await negativeAnswer(pratos);
+      console.log("novoPrato: \n", JSON.stringify(novoPrato));
+
+      pratos.value = novoPrato.value;
+      pratos.leftDish = novoPrato.leftDish;
+      pratos.rightDish = novoPrato.rightDish;
+
+      inicio();
     }
-    console.log(JSON.stringify(pratos));
-    await incio();
   }
 }
 
-async function incio() {
-  // const spinner = createSpinner().start();
+async function inicio() {
   await inquirer.prompt({
     name: "inicio",
     type: "input",
@@ -102,9 +99,8 @@ async function incio() {
       return "Ok";
     },
   });
-  question(pratosIniciais[0]);
+
+  question(pratosIniciais);
 }
 
-await incio();
-
-// nao reconhece um array
+inicio();
