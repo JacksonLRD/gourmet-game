@@ -51,6 +51,6 @@ ipcMain.on("open-window-question-1", () => {
     });
   }
   questionOneWindow.loadFile(
-    path.join(__dirname, "../src/html/question-one.html")
+    path.join(__dirname, "../src/html/first-question.html")
   );
 });
