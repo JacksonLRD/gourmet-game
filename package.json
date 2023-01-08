@@ -6,8 +6,8 @@
   "exports": "./index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node-esm ./index.ts",
-    "start": "npm run build && node ./index.js",
+    "dev": "ts-node-esm ./src/index.ts",
+    "start": "npm run build && node ./dist/index.js",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
