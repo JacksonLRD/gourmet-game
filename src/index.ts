@@ -23,11 +23,7 @@ const pratos: dish = {
 
 let count = 0;
 
-export const dishFactory = (
-  value: string,
-  rightDish?: dish,
-  leftDish?: dish
-): dish => {
+export const dishFactory = (value: string, rightDish?: dish, leftDish?: dish): dish => {
   return {
     value,
     rightDish,
@@ -35,22 +31,20 @@ export const dishFactory = (
   };
 };
 
-export async function startGame(): Promise<void> {
-  await inquirer.prompt({
-    name: "inicio",
-    type: "input",
-    message: "Pense em um prato",
-    default() {
-      return "Ok";
-    },
-  });
-
-  quizMain(pratos);
-}
-
 export const inputQuestion = async (
-  message: string
+  message: string,
+  defaultValue?: string
 ): Promise<inquirerResponse> => {
+  if (defaultValue) {
+    return inquirer.prompt({
+      name: "response",
+      type: "input",
+      message,
+      default() {
+        return defaultValue;
+      },
+    });
+  }
   return inquirer.prompt({
     name: "response",
     type: "input",
@@ -70,22 +64,20 @@ export const listQuestion = async (
   });
 };
 
-export async function quizAddDish(dish: dish): Promise<dish> {
-  const answerOne: inquirerResponse = await inquirer.prompt({
-    name: "response",
-    type: "input",
-    message: "Qual prato você pensou?",
-  });
-  const answerOneResponse =
-    answerOne.response === "" ? "PRATO NAO ADICIONADO" : answerOne.response;
+export async function startGame(): Promise<void> {
+  await inputQuestion("Pense em um prato", "Ok");
 
-  const answerTwo: inquirerResponse = await inquirer.prompt({
-    name: "response",
-    type: "input",
-    message: `${answerOneResponse} é ________, mas ${dish.value} não?`,
-  });
-  const answerTwoResponse =
-    answerTwo.response === "" ? "PRATO NAO ADICIONADO" : answerTwo.response;
+  quizMain(pratos);
+}
+
+export async function quizAddDish(dish: dish): Promise<dish> {
+  const messageOne = "Qual prato você pensou?";
+  const answerOne = await inputQuestion(messageOne);
+  const answerOneResponse = answerOne.response === "" ? "PRATO NAO ADICIONADO" : answerOne.response;
+
+  const messageTwo = `${answerOneResponse} é ________, mas ${dish.value} não?`;
+  const answerTwo = await inputQuestion(messageTwo);
+  const answerTwoResponse = answerTwo.response === "" ? "PRATO NAO ADICIONADO" : answerTwo.response;
 
   return dishFactory(
     answerTwoResponse,
