@@ -1,13 +1,13 @@
-import { createSpinner } from "nanospinner";
 import inquirer from "inquirer";
+import { createSpinner } from "nanospinner";
 
-type dish = {
+export type dish = {
   value: string;
   rightDish?: dish;
   leftDish?: dish;
 };
 
-type inquirerResponse = {
+export type inquirerResponse = {
   response: string;
 };
 
