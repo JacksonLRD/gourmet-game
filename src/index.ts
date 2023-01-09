@@ -23,7 +23,7 @@ const pratos: dish = {
 
 let count = 0;
 
-const dishFactory = (
+export const dishFactory = (
   value: string,
   rightDish?: dish,
   leftDish?: dish
@@ -35,7 +35,7 @@ const dishFactory = (
   };
 };
 
-async function startGame() {
+export async function startGame(): Promise<void> {
   await inquirer.prompt({
     name: "inicio",
     type: "input",
@@ -48,7 +48,7 @@ async function startGame() {
   startQuiz(pratos);
 }
 
-async function createNewDish(dish: dish): Promise<dish> {
+export async function createNewDish(dish: dish): Promise<dish> {
   const answerOne: inquirerResponse = await inquirer.prompt({
     name: "response",
     type: "input",
@@ -74,7 +74,7 @@ async function createNewDish(dish: dish): Promise<dish> {
   );
 }
 
-async function startQuiz(dishes: dish): Promise<void> {
+export async function startQuiz(dishes: dish): Promise<void> {
   const spinner = createSpinner();
 
   const answer: inquirerResponse = await inquirer.prompt({
