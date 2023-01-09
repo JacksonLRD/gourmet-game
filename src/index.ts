@@ -45,10 +45,32 @@ export async function startGame(): Promise<void> {
     },
   });
 
-  startQuiz(pratos);
+  quizMain(pratos);
 }
 
-export async function createNewDish(dish: dish): Promise<dish> {
+export const inputQuestion = async (
+  message: string
+): Promise<inquirerResponse> => {
+  return inquirer.prompt({
+    name: "response",
+    type: "input",
+    message,
+  });
+};
+
+export const listQuestion = async (
+  message: string,
+  choices: string[]
+): Promise<inquirerResponse> => {
+  return inquirer.prompt({
+    name: "response",
+    type: "list",
+    message,
+    choices,
+  });
+};
+
+export async function quizAddDish(dish: dish): Promise<dish> {
   const answerOne: inquirerResponse = await inquirer.prompt({
     name: "response",
     type: "input",
@@ -74,20 +96,17 @@ export async function createNewDish(dish: dish): Promise<dish> {
   );
 }
 
-export async function startQuiz(dishes: dish): Promise<void> {
+export async function quizMain(dishes: dish): Promise<void> {
   const spinner = createSpinner();
+  const message = `O prato que você escolheu é ${dishes.value}?`;
+  const choices = ["SIM", "NAO"];
 
-  const answer: inquirerResponse = await inquirer.prompt({
-    name: "response",
-    type: "list",
-    message: `O prato que você escolheu é ${dishes.value}?`,
-    choices: ["SIM", "NAO"],
-  });
+  const answer = await listQuestion(message, choices);
   const res = answer.response;
 
   if (res === "SIM") {
     if (dishes.rightDish) {
-      await startQuiz(dishes.rightDish);
+      await quizMain(dishes.rightDish);
     } else {
       spinner.success({
         text: count < 1 ? "Acertei!" : "Acertei de novo! 😎",
@@ -99,9 +118,9 @@ export async function startQuiz(dishes: dish): Promise<void> {
   }
   if (res === "NAO") {
     if (dishes.leftDish) {
-      await startQuiz(dishes.leftDish);
+      await quizMain(dishes.leftDish);
     } else {
-      const newDish = await createNewDish(dishes);
+      const newDish = await quizAddDish(dishes);
 
       dishes.value = newDish.value;
       dishes.leftDish = newDish.leftDish;
