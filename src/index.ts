@@ -1,15 +1,7 @@
 import inquirer from "inquirer";
 import { createSpinner } from "nanospinner";
-
-export type dish = {
-  value: string;
-  branchDish?: dish;
-  leafDish?: dish;
-};
-
-export type inquirerResponse = {
-  response: string;
-};
+import { dish } from "./@types/dishType.js";
+import { InquirerResponse } from "./@types/InquirerResponse.js";
 
 const pratos: dish = {
   value: "Massa",
@@ -34,7 +26,7 @@ export const dishFactory = (value: string, branchDish?: dish, leafDish?: dish): 
 export const inputQuestion = async (
   message: string,
   defaultValue?: string
-): Promise<inquirerResponse> => {
+): Promise<InquirerResponse> => {
   if (defaultValue) {
     return inquirer.prompt({
       name: "response",
@@ -55,7 +47,7 @@ export const inputQuestion = async (
 export const listQuestion = async (
   message: string,
   choices: string[]
-): Promise<inquirerResponse> => {
+): Promise<InquirerResponse> => {
   return inquirer.prompt({
     name: "response",
     type: "list",
