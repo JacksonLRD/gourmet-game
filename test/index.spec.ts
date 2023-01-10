@@ -14,8 +14,8 @@ describe("index", () => {
       const novoPrato = dishFactory(nomeDoPrato, pratoGalho, pratoFolha);
 
       expect(novoPrato.value).toEqual(nomeDoPrato);
-      expect(novoPrato.rightDish).toEqual(pratoGalho);
-      expect(novoPrato.leftDish).toEqual(pratoFolha);
+      expect(novoPrato.branchDish).toEqual(pratoGalho);
+      expect(novoPrato.leafDish).toEqual(pratoFolha);
     });
     it("Should create a new dish without all properties", () => {
       const nomeDoPrato = "Massa";
@@ -23,8 +23,8 @@ describe("index", () => {
       const novoPrato = dishFactory(nomeDoPrato);
 
       expect(novoPrato.value).toEqual(nomeDoPrato);
-      expect(novoPrato.rightDish).toBeUndefined();
-      expect(novoPrato.leftDish).toBeUndefined();
+      expect(novoPrato.branchDish).toBeUndefined();
+      expect(novoPrato.leafDish).toBeUndefined();
     });
   });
 });

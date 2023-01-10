@@ -3,8 +3,8 @@ import { createSpinner } from "nanospinner";
 
 export type dish = {
   value: string;
-  rightDish?: dish;
-  leftDish?: dish;
+  branchDish?: dish;
+  leafDish?: dish;
 };
 
 export type inquirerResponse = {
@@ -13,21 +13,21 @@ export type inquirerResponse = {
 
 const pratos: dish = {
   value: "Massa",
-  rightDish: {
+  branchDish: {
     value: "Lasanha",
   },
-  leftDish: {
+  leafDish: {
     value: "Bolo de chocolate",
   },
 };
 
 let count = 0;
 
-export const dishFactory = (value: string, rightDish?: dish, leftDish?: dish): dish => {
+export const dishFactory = (value: string, branchDish?: dish, leafDish?: dish): dish => {
   return {
     value,
-    rightDish,
-    leftDish,
+    branchDish,
+    leafDish,
   };
 };
 
@@ -97,8 +97,8 @@ export async function quizMain(dishes: dish): Promise<void> {
   const res = answer.response;
 
   if (res === "SIM") {
-    if (dishes.rightDish) {
-      await quizMain(dishes.rightDish);
+    if (dishes.branchDish) {
+      await quizMain(dishes.branchDish);
     } else {
       spinner.success({
         text: count < 1 ? "Acertei!" : "Acertei de novo! 😎",
@@ -109,14 +109,14 @@ export async function quizMain(dishes: dish): Promise<void> {
     }
   }
   if (res === "NAO") {
-    if (dishes.leftDish) {
-      await quizMain(dishes.leftDish);
+    if (dishes.leafDish) {
+      await quizMain(dishes.leafDish);
     } else {
       const newDish = await quizAddDish(dishes);
 
       dishes.value = newDish.value;
-      dishes.leftDish = newDish.leftDish;
-      dishes.rightDish = newDish.rightDish;
+      dishes.leafDish = newDish.leafDish;
+      dishes.branchDish = newDish.branchDish;
 
       startGame();
     }
